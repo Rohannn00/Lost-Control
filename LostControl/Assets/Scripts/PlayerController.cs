@@ -59,16 +59,29 @@ public class PlayerController : MonoBehaviour
 
     void HandleRotation()
     {
-        if (Input.GetKey(KeyCode.LeftArrow))
+        // Assuming the player is aligned horizontally on a platform
+        if (Input.GetKey(KeyCode.RightArrow))
         {
-            transform.Rotate(Vector3.forward * rotatespeed * Time.deltaTime);
+            RotateAroundPoint(Vector3.down);  // Rotate clockwise
         }
-        else if (Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.LeftArrow))
         {
-            transform.Rotate(Vector3.back * rotatespeed * Time.deltaTime);
+
+            RotateAroundPoint(Vector3.up);    // Rotate counterclockwise
         }
     }
 
+    void RotateAroundPoint(Vector3 direction)
+    {
+        // Define the platform edge or pivot point (in this case, bottom of the player)
+        Vector3 pivotPoint = transform.position - new Vector3(0, transform.localScale.y , 0);
+
+        // Calculate the rotation amount based on input direction
+        float rotationAmount = rotatespeed * Time.deltaTime;
+
+        // Rotate the player around the pivot point
+        transform.RotateAround(pivotPoint, direction, rotationAmount);
+    }
     void HandleScaling()
     {
         if (Input.GetKey(KeyCode.S))

@@ -16,7 +16,7 @@ public class DragAndSnap : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     private RectTransform rectTransform; // For UI position snapping
     public Canvas canvas; // Reference to the canvas
-    public float bottomBoundary = -200f;
+    public float bottomBoundary = -3f;
 
     void Start()
     {
@@ -55,7 +55,8 @@ public class DragAndSnap : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
             // Update the button's position
             rectTransform.anchoredPosition = clampedPosition;
-        
+     
+     
     }
     private Vector2 ClampToCanvas(Vector2 mousePos)
     {
@@ -67,12 +68,11 @@ public class DragAndSnap : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         float halfHeight = rectTransform.rect.height / 2;
 
         float clampedX = Mathf.Clamp(mousePos.x, -canvasRect.rect.width / 2 + halfWidth, canvasRect.rect.width / 2 - halfWidth);
-        float clampedY = Mathf.Clamp(mousePos.y, -canvasRect.rect.height / 2 + halfHeight, canvasRect.rect.height / 2 - halfHeight);
-
+       float clampedY = Mathf.Clamp(mousePos.y, -canvasRect.rect.height / 2 + halfHeight, canvasRect.rect.height / 2 - halfHeight * 0.25f);
         return new Vector2(clampedX, clampedY);
     }
-       
-        public void OnEndDrag(PointerEventData eventData)
+
+    public void OnEndDrag(PointerEventData eventData)
     {
         isDragging = false;
 
