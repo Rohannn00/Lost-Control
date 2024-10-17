@@ -26,10 +26,10 @@ public class DragAndSnap : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     void Update()
     {
-        // Check if dragged out of game area (optional, based on your design)
+        // Check if dragged out of game area
         if (isOutOfGameArea && !RectTransformUtility.RectangleContainsScreenPoint(canvas.GetComponent<RectTransform>(), Input.mousePosition))
         {
-            SnapBack();
+           // SnapBack();
         }
 
     }
@@ -79,7 +79,7 @@ public class DragAndSnap : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         // Check if dropped in a valid snap area
         if (InNoSnapArea())
         {
-            SnapBack(); // Return button if not valid
+            //SnapBack(); // Return button if not valid
         }
         else
         {
@@ -96,7 +96,7 @@ public class DragAndSnap : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         {
             return true; // The button is in the "no snap" area
         }
-        return false; // Placeholder, adjust based on your game design
+        return false; 
     }
 
     private void LockAbility()
@@ -116,7 +116,7 @@ public class DragAndSnap : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         }
     }
 
-    private void SnapBack()
+   /* private void SnapBack()
     {
         // Return button to original position and unlock the ability
         isSnapped = false;
@@ -124,7 +124,7 @@ public class DragAndSnap : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         UnlockAbility();
         gameObject.SetActive(true); // Make button visible again
     }
-
+   */
     private void UnlockAbility()
     {
         // Unlock specific player ability based on the button's name

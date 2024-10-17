@@ -7,6 +7,16 @@ TagManager:
   - Box1
   - Box2
   - Box3
+  - Prefab
+  - GridPrefab
+  - W Button
+  - E Button
+  - R Button
+  - StickyPlatform
+  - Canvas
+  - UI
+  - CameraSpaceCanvas
+  - WorldSpaceCanvas
   layers:
   - Default
   - TransparentFX
@@ -16,7 +26,7 @@ TagManager:
   - UI
   - 
   - 
-  - 
+  - Ground
   - 
   - 
   - 
