@@ -53,14 +53,26 @@ public class SimplePlayerMovement : MonoBehaviour
 
     void HandleScaling()
     {
+        // Get the current scale of the player
+        Vector3 currentScale = transform.localScale;
+
+        // If the 'Q' key is pressed, scale up within the maximum limit
         if (Input.GetKey(KeyCode.Q))
         {
-            transform.localScale += new Vector3(scaleSpeed, scaleSpeed, 0) * Time.deltaTime;
+            currentScale += new Vector3(scaleSpeed, scaleSpeed, 0) * Time.deltaTime;
         }
+        // If the 'S' key is pressed, scale down within the minimum limit
         else if (Input.GetKey(KeyCode.S))
         {
-            transform.localScale -= new Vector3(scaleSpeed, scaleSpeed, 0) * Time.deltaTime;
+            currentScale -= new Vector3(scaleSpeed, scaleSpeed, 0) * Time.deltaTime;
         }
+
+        // Clamp the scale values to the specified range
+        currentScale.x = Mathf.Clamp(currentScale.x, 0.4f, 3f);
+        currentScale.y = Mathf.Clamp(currentScale.y, 0.4f, 3f);
+
+        // Apply the clamped scale to the transform
+        transform.localScale = currentScale;
     }
 
     // Methods to lock/unlock movement in specific directions

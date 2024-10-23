@@ -17,6 +17,7 @@ TagManager:
   - UI
   - CameraSpaceCanvas
   - WorldSpaceCanvas
+  - SnapPoint
   layers:
   - Default
   - TransparentFX

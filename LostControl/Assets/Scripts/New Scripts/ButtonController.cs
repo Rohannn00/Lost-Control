@@ -8,6 +8,8 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     private Vector2 originalPosition; // Store the original canvas-relative position
     private RectTransform rectTransform; // RectTransform for UI positioning
 
+
+
     public SimplePlayerMovement playerMovement;
     public static bool isButtonOnScreen = false;
     public static ButtonController snappedButton = null;
@@ -70,23 +72,41 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             currentlyDraggedButton = null; // Reset the currently dragged button
         }
     }
-
     void SnapToPrefabs(Vector2 mousePos)
     {
-        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(mousePos), Vector2.zero);
+        // Convert mouse position to world point
+        Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
+        worldMousePos.z = 0; // Set Z to zero for 2D
 
-        if (hit.collider != null && hit.collider.CompareTag("GridPrefab"))
+        // Perform a raycast to detect objects with the "SnapPoint" tag
+        RaycastHit2D hit = Physics2D.Raycast(worldMousePos, Vector2.zero);
+
+        // Check if the raycast hits a "SnapPoint" object
+        if (hit.collider != null && hit.collider.CompareTag("SnapPoint"))
         {
-            if (!isButtonOnScreen || snappedButton == this)
+            // Get the snap point position and the player's collider
+            Vector3 snapPointPosition = hit.collider.transform.position;
+            Collider2D playerCollider = playerMovement.GetComponent<Collider2D>();
+
+            // DEBUG: Log the detected positions
+            Debug.Log("Detected Snap Point at Position: " + snapPointPosition);
+
+            // Check if player's collider overlaps with the snap point
+            if (!playerCollider.bounds.Intersects(hit.collider.bounds))
             {
+                // Allow snapping since the player is not overlapping with the snap point
+                Debug.Log("Snapping to snap point at Position: " + snapPointPosition);
+
                 isButtonOnScreen = true;
                 snappedButton = this;
 
+                // Set the button to the world canvas
                 transform.SetParent(worldSpaceCanvas, true);
-                rectTransform.position = hit.collider.transform.position;
+                rectTransform.position = snapPointPosition; // Snap to the snap point position
 
                 CreatePlatformAtButtonPosition();
 
+                // Handle button-specific behavior based on the button's name
                 if (gameObject.name == "A Button")
                 {
                     playerMovement.SetCanMoveLeft(false); // Lock left movement
@@ -104,12 +124,25 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                     StartFloating(); // Trigger floating if G Button is snapped
                 }
             }
+            else
+            {
+                // DEBUG: Log that the player is overlapping the snap point
+                Debug.Log("Player collider overlaps with snap point, not snapping.");
+                ReturnToOriginalPosition();
+            }
         }
         else
         {
+            // DEBUG: Log that no snap point was detected
+            Debug.Log("No snap point detected, returning button to original position.");
             ReturnToOriginalPosition();
         }
     }
+
+
+
+
+
 
     private void CreatePlatformAtButtonPosition()
     {
