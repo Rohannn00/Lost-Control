@@ -230,15 +230,36 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         if (Input.GetMouseButtonDown(0))
         {
             Vector2 mousePos = Input.mousePosition;
-            Vector2 originalWorldPosition = originalParent.TransformPoint(originalPosition); // Convert to world position
+            Vector2 originalWorldPosition = Camera.main.WorldToScreenPoint(
+                originalParent.TransformPoint(originalPosition)); // Convert to world position in screen space
 
-            if (Vector2.Distance(mousePos, Camera.main.WorldToScreenPoint(originalWorldPosition)) < 10f)
+            // Calculate distance between click position and original position in screen space
+            float distanceToOriginal = Vector2.Distance(mousePos, originalWorldPosition);
+
+            // Check if the click is close enough to the original button position
+            if (distanceToOriginal < 50f) // Adjust the distance threshold based on sensitivity
             {
+                // DEBUG: Log the detected click near the original position
+                Debug.Log("Click detected near original position. Returning button.");
+
+                // Return button to original position on the canvas
                 ReturnToOriginalPosition();
             }
         }
-    }
+        }
 
+    public void OnButtonClick()
+    {
+        // Check if the button is on the world canvas
+        if (isButtonOnScreen && snappedButton == this)
+        {
+            // DEBUG: Log the detected button click on the world canvas
+            Debug.Log("Button clicked on world canvas. Returning to original position.");
+
+            // Return the button to the original position
+            ReturnToOriginalPosition();
+        }
+    }
     private void StartFloating()
     {
         isFloating = true;
