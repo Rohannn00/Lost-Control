@@ -7,9 +7,7 @@ public class SimplePlayerMovement : MonoBehaviour
     public float moveSpeed = 25f;  // Speed at which the player moves
     public float scaleSpeed = 0.1f; // Speed at which the player scales
     public float floatingForce = 5f; // Force applied when the player is floating
-    private bool canMoveLeft = true;  // Flag to control left movement
-    private bool canMoveRight = true; // Flag to control right movement
-    private bool canScale = true;    // Flag to control scaling ability
+    private HashSet<string> disabledAbilities = new HashSet<string>(); // Track disabled abilities
     private bool isFloating = false;  // Track if player is floating
 
     private Rigidbody2D rb;          // Reference to the Rigidbody2D component
@@ -28,7 +26,7 @@ public class SimplePlayerMovement : MonoBehaviour
         }
 
         HandleWalking();  // Handle walking input
-        if (canScale)
+        if (!disabledAbilities.Contains("Scale"))
         {
             HandleScaling(); // Handle scaling input
         }
@@ -36,18 +34,18 @@ public class SimplePlayerMovement : MonoBehaviour
 
     void HandleWalking()
     {
-        float move = Input.GetAxisRaw("Horizontal"); // Get horizontal input
-
-        // Allow movement only based on the canMoveLeft and canMoveRight flags
-        if ((move < 0 && canMoveLeft) || (move > 0 && canMoveRight))
+        float move = Input.GetAxisRaw("Horizontal");
+        if (!disabledAbilities.Contains("MoveLeft") && move < 0)
         {
-            // Set the horizontal velocity directly on the Rigidbody
-            rb.velocity = new Vector2(move * moveSpeed, rb.velocity.y);
+            rb.velocity = new Vector2(-moveSpeed, rb.velocity.y); // Move left
+        }
+        else if (!disabledAbilities.Contains("MoveRight") && move > 0)
+        {
+            rb.velocity = new Vector2(moveSpeed, rb.velocity.y); // Move right
         }
         else
         {
-            // Stop horizontal movement if either direction is disabled
-            rb.velocity = new Vector2(0, rb.velocity.y);
+            rb.velocity = new Vector2(0, rb.velocity.y); // Stop horizontal movement if unable
         }
     }
 
@@ -74,50 +72,32 @@ public class SimplePlayerMovement : MonoBehaviour
         // Apply the clamped scale to the transform
         transform.localScale = currentScale;
     }
-
-    // Methods to lock/unlock movement in specific directions
-    public void SetCanMoveLeft(bool isEnabled)
-    {
-        canMoveLeft = isEnabled;
-    }
-
-    public void SetCanMoveRight(bool isEnabled)
-    {
-        canMoveRight = isEnabled;
-    }
-
-    public void SetCanScale(bool isEnabled)
-    {
-        canScale = isEnabled;
-    }
-
-    // Floating mechanics remain the same
     public void Fly()
     {
-        isFloating = true;  // Set floating flag
-        rb.gravityScale = 0;  // Disable gravity so the player doesn't fall
+        isFloating = true;  // Set floating state to true
+        rb.velocity = new Vector2(rb.velocity.x, floatingForce); // Apply upward force
     }
 
     public void Ground()
     {
-        isFloating = false;  // Stop floating
-        rb.gravityScale = 1;  // Re-enable gravity
-        rb.velocity = new Vector2(rb.velocity.x, 0);  // Ground the player by stopping vertical velocity
+        isFloating = false; // Set floating state to false
+        rb.velocity = new Vector2(rb.velocity.x, 0); // Reset vertical velocity
     }
 
-    void FixedUpdate()
+    public void SetAbility(string ability, bool enabled)
     {
-        if (isFloating)
+        if (enabled)
         {
-            rb.velocity = new Vector2(rb.velocity.x, floatingForce);
+            disabledAbilities.Remove(ability); // Enable the ability
+        }
+        else
+        {
+            disabledAbilities.Add(ability); // Disable the ability
         }
     }
 
-    // Method to enable all player abilities
-    private void EnableAllAbilities()
+    public void EnableAllAbilities()
     {
-        SetCanMoveLeft(true);
-        SetCanMoveRight(true);
-        SetCanScale(true);
+        disabledAbilities.Clear(); // Clear the list to enable all abilities
     }
 }

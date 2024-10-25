@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -8,18 +9,17 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     private Vector2 originalPosition; // Store the original canvas-relative position
     private RectTransform rectTransform; // RectTransform for UI positioning
 
-
-
     public SimplePlayerMovement playerMovement;
     public static bool isButtonOnScreen = false;
-    public static ButtonController snappedButton = null;
 
     private bool isFloating = false;
     private float floatDuration = 1.5f;
     private float floatTimer = 1.5f;
 
     private bool canDragButton = true; // Flag to control whether the button can be dragged
-    public static ButtonController currentlyDraggedButton = null; // Track the currently dragged button
+
+    // Keep track of all snapped buttons
+    public static List<ButtonController> snappedButtons = new List<ButtonController>();
 
     // Reference to the WorldSpaceCanvas
     public Transform worldSpaceCanvas;
@@ -42,13 +42,10 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (gameObject.name == "G Button" || (canDragButton && (!isButtonOnScreen || snappedButton == this)))
+        // Check if the button can be dragged
+        if (canDragButton && (snappedButtons.Contains(this) || gameObject.name != "G Button"))
         {
-            if (currentlyDraggedButton != null && currentlyDraggedButton != this)
-                return;
-
             isDragging = true;
-            currentlyDraggedButton = this; // Set this button as currently dragged
         }
     }
 
@@ -69,9 +66,9 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         {
             SnapToPrefabs(eventData.position);
             isDragging = false;
-            currentlyDraggedButton = null; // Reset the currently dragged button
         }
     }
+
     void SnapToPrefabs(Vector2 mousePos)
     {
         // Convert mouse position to world point
@@ -84,65 +81,52 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         // Check if the raycast hits a "SnapPoint" object
         if (hit.collider != null && hit.collider.CompareTag("SnapPoint"))
         {
-            // Get the snap point position and the player's collider
             Vector3 snapPointPosition = hit.collider.transform.position;
             Collider2D playerCollider = playerMovement.GetComponent<Collider2D>();
 
-            // DEBUG: Log the detected positions
-            Debug.Log("Detected Snap Point at Position: " + snapPointPosition);
-
-            // Check if player's collider overlaps with the snap point
             if (!playerCollider.bounds.Intersects(hit.collider.bounds))
             {
-                // Allow snapping since the player is not overlapping with the snap point
-                Debug.Log("Snapping to snap point at Position: " + snapPointPosition);
-
                 isButtonOnScreen = true;
-                snappedButton = this;
 
-                // Set the button to the world canvas
+                // Add this button to the list of snapped buttons
+                snappedButtons.Add(this);
+
                 transform.SetParent(worldSpaceCanvas, true);
-                rectTransform.position = snapPointPosition; // Snap to the snap point position
+                rectTransform.position = snapPointPosition;
 
                 CreatePlatformAtButtonPosition();
-
-                // Handle button-specific behavior based on the button's name
-                if (gameObject.name == "A Button")
-                {
-                    playerMovement.SetCanMoveLeft(false); // Lock left movement
-                }
-                else if (gameObject.name == "D Button")
-                {
-                    playerMovement.SetCanMoveRight(false); // Lock right movement
-                }
-                else if (gameObject.name == "S Button")
-                {
-                    playerMovement.SetCanScale(false); // Disable scaling
-                }
-                else if (gameObject.name == "G Button")
-                {
-                    StartFloating(); // Trigger floating if G Button is snapped
-                }
+                HandleButtonSpecificBehavior();
             }
             else
             {
-                // DEBUG: Log that the player is overlapping the snap point
-                Debug.Log("Player collider overlaps with snap point, not snapping.");
                 ReturnToOriginalPosition();
             }
         }
         else
         {
-            // DEBUG: Log that no snap point was detected
-            Debug.Log("No snap point detected, returning button to original position.");
             ReturnToOriginalPosition();
         }
     }
 
-
-
-
-
+    private void HandleButtonSpecificBehavior()
+    {
+        if (gameObject.name == "A Button")
+        {
+            playerMovement.SetAbility("MoveLeft", false); // Lock left movement
+        }
+        else if (gameObject.name == "D Button")
+        {
+            playerMovement.SetAbility("MoveRight", false); // Lock right movement
+        }
+        else if (gameObject.name == "S Button")
+        {
+            playerMovement.SetAbility("Scale", false); // Disable scaling
+        }
+        else if (gameObject.name == "G Button")
+        {
+            StartFloating(); // Trigger floating if G Button is snapped
+        }
+    }
 
     private void CreatePlatformAtButtonPosition()
     {
@@ -152,7 +136,6 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         }
 
         platformInstance = Instantiate(emptyObjectPrefab, transform.position, Quaternion.identity, worldSpaceCanvas);
-
         BoxCollider2D boxCollider = platformInstance.AddComponent<BoxCollider2D>();
         boxCollider.size = new Vector2(1, 1); // Adjust size to fit your needs
         boxCollider.isTrigger = true; // Set to true if you want it to be a trigger
@@ -163,25 +146,31 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         transform.SetParent(originalParent, true);
         rectTransform.anchoredPosition = originalPosition;
 
-        if (snappedButton == this)
+        // Remove this button from the list of snapped buttons
+        snappedButtons.Remove(this);
+
+        if (snappedButtons.Count == 0)
         {
             isButtonOnScreen = false;
-            snappedButton = null;
         }
 
         DeletePlatform();
+        RestoreButtonSpecificBehavior();
+    }
 
+    private void RestoreButtonSpecificBehavior()
+    {
         if (gameObject.name == "A Button")
         {
-            playerMovement.SetCanMoveLeft(true); // Unlock left movement
+            playerMovement.SetAbility("MoveLeft", true); // Unlock left movement
         }
         else if (gameObject.name == "D Button")
         {
-            playerMovement.SetCanMoveRight(true); // Unlock right movement
+            playerMovement.SetAbility("MoveRight", true); // Unlock right movement
         }
         else if (gameObject.name == "S Button")
         {
-            playerMovement.SetCanScale(true); // Enable scaling again
+            playerMovement.SetAbility("Scale", true); // Enable scaling again
         }
         else if (gameObject.name == "G Button")
         {
@@ -208,11 +197,9 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     void Update()
     {
         // Check if no buttons are currently on screen
-        if (!isButtonOnScreen)
+        if (snappedButtons.Count == 0)
         {
-            playerMovement.SetCanMoveLeft(true);
-            playerMovement.SetCanMoveRight(true);
-            playerMovement.SetCanScale(true);
+            playerMovement.EnableAllAbilities(); // Re-enable all abilities if no buttons are active
         }
 
         if (isFloating)
@@ -226,40 +213,34 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             }
         }
 
-        // Detect mouse click
+        DetectMouseClick();
+    }
+
+    private void DetectMouseClick()
+    {
         if (Input.GetMouseButtonDown(0))
         {
             Vector2 mousePos = Input.mousePosition;
             Vector2 originalWorldPosition = Camera.main.WorldToScreenPoint(
                 originalParent.TransformPoint(originalPosition)); // Convert to world position in screen space
 
-            // Calculate distance between click position and original position in screen space
             float distanceToOriginal = Vector2.Distance(mousePos, originalWorldPosition);
 
-            // Check if the click is close enough to the original button position
             if (distanceToOriginal < 50f) // Adjust the distance threshold based on sensitivity
             {
-                // DEBUG: Log the detected click near the original position
-                Debug.Log("Click detected near original position. Returning button.");
-
-                // Return button to original position on the canvas
                 ReturnToOriginalPosition();
             }
         }
-        }
+    }
 
     public void OnButtonClick()
     {
-        // Check if the button is on the world canvas
-        if (isButtonOnScreen && snappedButton == this)
+        if (isButtonOnScreen && snappedButtons.Contains(this))
         {
-            // DEBUG: Log the detected button click on the world canvas
-            Debug.Log("Button clicked on world canvas. Returning to original position.");
-
-            // Return the button to the original position
             ReturnToOriginalPosition();
         }
     }
+
     private void StartFloating()
     {
         isFloating = true;
