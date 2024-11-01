@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,25 +5,23 @@ public class SimplePlayerMovement : MonoBehaviour
 {
     public float moveSpeed = 25f;  // Speed at which the player moves
     public float scaleSpeed = 0.1f; // Speed at which the player scales
-    public float floatingForce = 5f; // Force applied when the player is floating
+    public float floatingForce = 5f; // Default force applied when the player is floating
     private HashSet<string> disabledAbilities = new HashSet<string>(); // Track disabled abilities
     private bool isFloating = false;  // Track if player is floating
+
+    public Vector3 respawnPoint; // Point where the player respawns after dying
 
     private Rigidbody2D rb;          // Reference to the Rigidbody2D component
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>(); // Get Rigidbody2D for physics-based movement
+        respawnPoint = transform.position;
     }
 
     void Update()
     {
-        // Check if no buttons are snapped on the screen
-        if (!ButtonController.isButtonOnScreen)
-        {
-            EnableAllAbilities(); // Re-enable all abilities if no buttons are active
-        }
-
+        // Handle other movements
         HandleWalking();  // Handle walking input
         if (!disabledAbilities.Contains("Scale"))
         {
@@ -72,16 +69,39 @@ public class SimplePlayerMovement : MonoBehaviour
         // Apply the clamped scale to the transform
         transform.localScale = currentScale;
     }
+
     public void Fly()
     {
         isFloating = true;  // Set floating state to true
-        rb.velocity = new Vector2(rb.velocity.x, floatingForce); // Apply upward force
+        float forceMultiplier = CalculateForceMultiplier(); // Calculate force based on player's size
+        rb.velocity = new Vector2(rb.velocity.x, floatingForce * forceMultiplier); // Apply upward force with multiplier
     }
 
     public void Ground()
     {
         isFloating = false; // Set floating state to false
         rb.velocity = new Vector2(rb.velocity.x, 0); // Reset vertical velocity
+    }
+
+    // Calculate a multiplier for the jump force based on the player's scale
+    private float CalculateForceMultiplier()
+    {
+        float currentScale = transform.localScale.x; // Assuming uniform scaling (x and y are equal)
+
+        // Define the multiplier: smaller scale leads to lower jump force, larger scale to higher jump force
+        if (currentScale >= 3f)
+        {
+            return 1.5f; // Larger player jumps higher
+        }
+        else if (currentScale <= 0.4f)
+        {
+            return 0.7f; // Smaller player jumps lower
+        }
+        else
+        {
+            // Calculate proportional multiplier between min and max scale range
+            return Mathf.Lerp(0.7f, 1.5f, (currentScale - 0.4f) / (3f - 0.4f));
+        }
     }
 
     public void SetAbility(string ability, bool enabled)
@@ -99,5 +119,13 @@ public class SimplePlayerMovement : MonoBehaviour
     public void EnableAllAbilities()
     {
         disabledAbilities.Clear(); // Clear the list to enable all abilities
+    }
+     public void Die()
+    {
+        // Example action: respawn the player at a specific point
+        transform.position = respawnPoint;
+
+        // Additional actions like reducing health or playing a death animation can be added here
+        Debug.Log("Player has died and respawned!");
     }
 }

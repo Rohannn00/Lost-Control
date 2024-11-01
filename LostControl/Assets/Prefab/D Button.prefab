@@ -146,6 +146,7 @@ GameObject:
   - component: {fileID: 146741834773443314}
   - component: {fileID: 1573496542193131466}
   - component: {fileID: 8961226177312316769}
+  - component: {fileID: 1160568921446756951}
   m_Layer: 5
   m_Name: D Button
   m_TagString: UI
@@ -254,4 +255,31 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1573496542193131466}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1160568921446756951}
+        m_TargetAssemblyTypeName: ButtonController, Assembly-CSharp
+        m_MethodName: OnButtonClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &1160568921446756951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6648510553406117566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64e4ebc364ad1a547807c47af0e7d1ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMovement: {fileID: 0}
+  worldSpaceCanvas: {fileID: 0}
+  emptyObjectPrefab: {fileID: 3079337684362837103, guid: bb00b7918f247db44a83ce9b378963f1, type: 3}

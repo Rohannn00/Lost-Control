@@ -146,6 +146,7 @@ GameObject:
   - component: {fileID: 3846542190190918096}
   - component: {fileID: 4621630777498566271}
   - component: {fileID: 2252933933817614904}
+  - component: {fileID: 453899106342762773}
   m_Layer: 5
   m_Name: G Button
   m_TagString: UI
@@ -194,7 +195,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5849056, g: 0.21244211, b: 0.21244211, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -255,3 +256,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &453899106342762773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5734313706335813705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dc9f3410f6e89841a57c65b83a8503d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMovement: {fileID: 0}
+  gButton: {fileID: 2252933933817614904}
+  flyDuration: 0.76
+  cooldownDuration: 5
+  fadeColor: {r: 1, g: 1, b: 1, a: 0.5}
