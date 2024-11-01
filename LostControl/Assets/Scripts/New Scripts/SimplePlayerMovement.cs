@@ -8,15 +8,16 @@ public class SimplePlayerMovement : MonoBehaviour
     public float floatingForce = 5f; // Default force applied when the player is floating
     private HashSet<string> disabledAbilities = new HashSet<string>(); // Track disabled abilities
     private bool isFloating = false;  // Track if player is floating
-
-    public Vector3 respawnPoint; // Point where the player respawns after dying
+    private Vector3 currentCheckpoint; // The player's current checkpoint position
+   // public Vector3 respawnPoint; // Point where the player respawns after dying
 
     private Rigidbody2D rb;          // Reference to the Rigidbody2D component
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>(); // Get Rigidbody2D for physics-based movement
-        respawnPoint = transform.position;
+        currentCheckpoint = transform.position;
+       
     }
 
     void Update()
@@ -28,7 +29,11 @@ public class SimplePlayerMovement : MonoBehaviour
             HandleScaling(); // Handle scaling input
         }
     }
-
+    public void SetCheckpoint(Vector3 newCheckpoint)
+    {
+        // Update the current checkpoint position
+        currentCheckpoint = newCheckpoint;
+    }
     void HandleWalking()
     {
         float move = Input.GetAxisRaw("Horizontal");
@@ -120,10 +125,11 @@ public class SimplePlayerMovement : MonoBehaviour
     {
         disabledAbilities.Clear(); // Clear the list to enable all abilities
     }
-     public void Die()
+   
+    public void Die()
     {
         // Example action: respawn the player at a specific point
-        transform.position = respawnPoint;
+        transform.position = currentCheckpoint;
 
         // Additional actions like reducing health or playing a death animation can be added here
         Debug.Log("Player has died and respawned!");
