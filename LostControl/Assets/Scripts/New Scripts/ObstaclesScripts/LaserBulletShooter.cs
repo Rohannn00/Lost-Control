@@ -31,6 +31,13 @@ public class LaserBulletShooter : MonoBehaviour
     }
 }
 
+
+
+
+
+
+
+
 public class BulletMover : MonoBehaviour
 {
     private float speed;
@@ -58,14 +65,16 @@ public class BulletMover : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        Debug.Log("trrigering ");
+
+        if (collision.gameObject.CompareTag("Player"))
         {
-            // Handle player death
-            collision.GetComponent<SimplePlayerMovement>().Die();
+            collision.gameObject.GetComponent<SimplePlayerMovement>().Die();
+            Destroy(gameObject);
         }
-        else if (collision.CompareTag("Obstacle"))
+        else if (collision.gameObject.CompareTag("Clash"))
         {
-            // Destroy the bullet if it hits an obstacle
+            Debug.Log("Hit Platform");
             Destroy(gameObject);
         }
     }

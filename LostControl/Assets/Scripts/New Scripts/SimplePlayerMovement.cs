@@ -9,7 +9,8 @@ public class SimplePlayerMovement : MonoBehaviour
     private HashSet<string> disabledAbilities = new HashSet<string>(); // Track disabled abilities
     private bool isFloating = false;  // Track if player is floating
     private Vector3 currentCheckpoint; // The player's current checkpoint position
-   // public Vector3 respawnPoint; // Point where the player respawns after dying
+                                       // public Vector3 respawnPoint; // Point where the player respawns after dying
+    private int health =100;
 
     private Rigidbody2D rb;          // Reference to the Rigidbody2D component
 
@@ -133,5 +134,18 @@ public class SimplePlayerMovement : MonoBehaviour
 
         // Additional actions like reducing health or playing a death animation can be added here
         Debug.Log("Player has died and respawned!");
+    }
+    public void ReduceHealth(int amount)
+    {
+        // Assume health starts at 100 and reduce it by the specified amount
+        health -= amount;
+        if (health <= 0)
+        {
+            Die(); // Trigger the death and respawn if health reaches 0
+        }
+        else
+        {
+            Debug.Log("Player health: " + health);
+        }
     }
 }

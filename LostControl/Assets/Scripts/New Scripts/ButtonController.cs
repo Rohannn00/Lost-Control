@@ -136,10 +136,12 @@ public class ButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         }
 
         platformInstance = Instantiate(emptyObjectPrefab, transform.position, Quaternion.identity, worldSpaceCanvas);
+
         BoxCollider2D boxCollider = platformInstance.AddComponent<BoxCollider2D>();
         boxCollider.size = new Vector2(1, 1); // Adjust size to fit your needs
         boxCollider.isTrigger = true; // Set to true if you want it to be a trigger
     }
+
 
     private void ReturnToOriginalPosition()
     {
