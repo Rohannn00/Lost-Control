@@ -9,13 +9,33 @@ public class YellowLaserBeam : MonoBehaviour
 
     private float lastDamageTime = -Mathf.Infinity; // Track when the player was last damaged
 
+    public enum LaserDirection { Up, Down, Left, Right } // Enum for laser direction
+    public LaserDirection laserDirection = LaserDirection.Up; // Default direction
+
     void Update()
     {
         // Set the starting position of the laser
         lineRenderer.SetPosition(0, laserOrigin.position);
 
-        // Shoot the laser downwards
-        Vector2 rayDirection = Vector2.up;
+        // Determine the ray direction based on the selected laser direction
+        Vector2 rayDirection = Vector2.zero;
+        switch (laserDirection)
+        {
+            case LaserDirection.Up:
+                rayDirection = Vector2.up;
+                break;
+            case LaserDirection.Down:
+                rayDirection = Vector2.down;
+                break;
+            case LaserDirection.Left:
+                rayDirection = Vector2.left;
+                break;
+            case LaserDirection.Right:
+                rayDirection = Vector2.right;
+                break;
+        }
+
+        // Cast the ray in the chosen direction
         RaycastHit2D hit = Physics2D.Raycast(laserOrigin.position, rayDirection, laserMaxDistance);
 
         // Ignore SnapPoint collisions and continue raycasting

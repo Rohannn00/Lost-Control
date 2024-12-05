@@ -7,7 +7,15 @@ public class LaserBeam : MonoBehaviour
     public float laserMaxDistance = 100f; // Maximum distance of the laser
 
     [Header("Direction Settings")]
-    public bool shootHorizontally = false; // Toggle for horizontal or vertical raycasting
+    public LaserDirection laserDirection = LaserDirection.Down; // Enum for laser direction
+
+    public enum LaserDirection
+    {
+        Up,
+        Down,
+        Left,
+        Right
+    }
 
     void Update()
     {
@@ -15,7 +23,23 @@ public class LaserBeam : MonoBehaviour
         lineRenderer.SetPosition(0, laserOrigin.position);
 
         // Determine the ray direction based on the chosen setting
-        Vector2 rayDirection = shootHorizontally ? Vector2.right : Vector2.down;
+        Vector2 rayDirection = Vector2.zero;
+
+        switch (laserDirection)
+        {
+            case LaserDirection.Up:
+                rayDirection = Vector2.up;
+                break;
+            case LaserDirection.Down:
+                rayDirection = Vector2.down;
+                break;
+            case LaserDirection.Left:
+                rayDirection = Vector2.left;
+                break;
+            case LaserDirection.Right:
+                rayDirection = Vector2.right;
+                break;
+        }
 
         // Cast a ray from the laser origin in the specified direction
         RaycastHit2D hit = Physics2D.Raycast(laserOrigin.position, rayDirection, laserMaxDistance);

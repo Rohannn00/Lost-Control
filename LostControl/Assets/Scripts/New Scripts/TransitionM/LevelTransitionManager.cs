@@ -4,27 +4,60 @@ using System.Collections;
 
 public class LevelTransitionManager : MonoBehaviour
 {
-    public string nextLevelName;// Name of the next level to load
-    public float transitionTime = 1f; // Duration for the transition
+    public float transitionTime = 1.5f; // Time for the transition animation
+    public Animator transition;        // Animator controlling the transition animations
+    public string nextLevel;           // Name of the next level to load
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private static bool shouldPlayTransitionIn = true; // Track whether to play Transition IN at scene start
+
+    private void Start()
     {
-        // Check if the player entered the trigger zone
-        if (other.CompareTag("Player"))
+        // Play Transition IN animation if required
+        if (shouldPlayTransitionIn && transition != null)
         {
-            Debug.Log("Player entered the trigger zone");
-            // Start the level transition coroutine
-            StartCoroutine(LoadNextLevel());
+            transition.SetTrigger("IN");
+            shouldPlayTransitionIn = false; // Reset after playing
         }
     }
 
-    private IEnumerator LoadNextLevel()
+   
+
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("Loading next level: " + nextLevelName);
-        // Optional: Wait for the duration of the transition
+        if ( collision.CompareTag("Player"))
+        {
+            LoadNextLevel();
+        }
+    }
+
+    public void LoadNextLevel()
+    {
+        // Set the flag to play Transition IN in the next scene
+        shouldPlayTransitionIn = true;
+
+        // Start the coroutine for the transition and scene loading
+        StartCoroutine(LoadLevelCoroutine());
+    }
+
+    private IEnumerator LoadLevelCoroutine()
+    {
+        // Trigger Transition OUT animation
+        if (transition != null)
+        {
+            transition.SetTrigger("Start");
+        }
+
+        // Wait for the transition animation to complete
         yield return new WaitForSeconds(transitionTime);
 
-        // Load the next level by name
-        SceneManager.LoadScene(nextLevelName);
+        // Load the next scene
+        if (!string.IsNullOrEmpty(nextLevel))
+        {
+            SceneManager.LoadScene(nextLevel);
+        }
+        else
+        {
+            Debug.LogError("Next level name is not set! Please assign it in the inspector.");
+        }
     }
 }
